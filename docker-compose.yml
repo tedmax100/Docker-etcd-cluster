@@ -1,0 +1,113 @@
+version: "3.6"
+services:
+  node1:
+    image: quay.io/coreos/etcd:${TAG}
+    volumes:
+      - node1-data:/etcd-data
+    expose:
+      - 2379
+      - 2380
+    networks:
+      cluster_net:
+        ipv4_address: ${ETCD_01_NETWORKS_ETCD_NET_ADDRESS}
+    environment:
+      - ETCDCTL_API=3
+    restart: unless-stopped
+    command:
+      - /usr/local/bin/etcd
+      - --data-dir=/etcd-data
+      - --name
+      - node1
+      - --initial-advertise-peer-urls
+      - http://${ETCD_01_NETWORKS_ETCD_NET_ADDRESS}:2380
+      - --listen-peer-urls
+      - http://0.0.0.0:2380
+      - --advertise-client-urls
+      - http://${ETCD_01_NETWORKS_ETCD_NET_ADDRESS}:2379
+      - --listen-client-urls
+      - http://0.0.0.0:2379
+      - --initial-cluster
+      - node1=http://${ETCD_01_NETWORKS_ETCD_NET_ADDRESS}:2380,node2=http://${ETCD_02_NETWORKS_ETCD_NET_ADDRESS}:2380,node3=http://${ETCD_03_NETWORKS_ETCD_NET_ADDRESS}:2380
+      - --initial-cluster-state
+      - new
+      - --initial-cluster-token
+      - docker-etcd
+      - --auto-compaction-retention=1
+  node2:
+    image: quay.io/coreos/etcd:${TAG}
+    volumes:
+      - node2-data:/etcd-data
+    networks:
+      cluster_net:
+        ipv4_address: ${ETCD_02_NETWORKS_ETCD_NET_ADDRESS}
+    environment:
+      - ETCDCTL_API=3
+    restart: unless-stopped
+    expose:
+      - 2379
+      - 2380
+    command:
+      - /usr/local/bin/etcd
+      - --data-dir=/etcd-data
+      - --name
+      - node2
+      - --initial-advertise-peer-urls
+      - http://${ETCD_02_NETWORKS_ETCD_NET_ADDRESS}:2380
+      - --listen-peer-urls
+      - http://0.0.0.0:2380
+      - --advertise-client-urls
+      - http://${ETCD_02_NETWORKS_ETCD_NET_ADDRESS}:2379
+      - --listen-client-urls
+      - http://0.0.0.0:2379
+      - --initial-cluster
+      - node1=http://${ETCD_01_NETWORKS_ETCD_NET_ADDRESS}:2380,node2=http://${ETCD_02_NETWORKS_ETCD_NET_ADDRESS}:2380,node3=http://${ETCD_03_NETWORKS_ETCD_NET_ADDRESS}:2380
+      - --initial-cluster-state
+      - new
+      - --initial-cluster-token
+      - docker-etcd
+      - --auto-compaction-retention=1
+  node3:
+    image: quay.io/coreos/etcd:${TAG}
+    volumes:
+      - node3-data:/etcd-data
+    networks:
+      cluster_net:
+        ipv4_address: ${ETCD_03_NETWORKS_ETCD_NET_ADDRESS}
+    environment:
+      - ETCDCTL_API=3
+    restart: unless-stopped
+    expose:
+      - 2379
+      - 2380
+    command:
+      - /usr/local/bin/etcd
+      - --data-dir=/etcd-data
+      - --name
+      - node3
+      - --initial-advertise-peer-urls
+      - http://${ETCD_03_NETWORKS_ETCD_NET_ADDRESS}:2380
+      - --listen-peer-urls
+      - http://0.0.0.0:2380
+      - --advertise-client-urls
+      - http://${ETCD_03_NETWORKS_ETCD_NET_ADDRESS}:2379
+      - --listen-client-urls
+      - http://0.0.0.0:2379
+      - --initial-cluster
+      - node1=http://${ETCD_01_NETWORKS_ETCD_NET_ADDRESS}:2380,node2=http://${ETCD_02_NETWORKS_ETCD_NET_ADDRESS}:2380,node3=http://${ETCD_03_NETWORKS_ETCD_NET_ADDRESS}:2380
+      - --initial-cluster-state
+      - new
+      - --initial-cluster-token
+      - docker-etcd
+      - --auto-compaction-retention=1
+volumes:
+  node1-data:
+  node2-data:
+  node3-data:
+networks:
+  cluster_net:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+      -
+        subnet: ${NETWORK_CONFIG_SUBNET}
