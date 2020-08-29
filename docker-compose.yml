@@ -5,6 +5,8 @@ services:
     image: quay.io/coreos/etcd:v3.4.0
     volumes:
       - node1-data:/etcd-data
+    ports:
+      - "12379:2379"
     expose:
       - 2379
       - 2380
@@ -42,6 +44,8 @@ services:
         ipv4_address: 172.16.238.101
     environment:
       - ETCDCTL_API=3
+    ports:
+      - "12380:2379"
     expose:
       - 2379
       - 2380
@@ -74,6 +78,8 @@ services:
         ipv4_address: 172.16.238.102
     environment:
       - ETCDCTL_API=3
+    ports:
+      - "12381:2379"
     expose:
       - 2379
       - 2380
